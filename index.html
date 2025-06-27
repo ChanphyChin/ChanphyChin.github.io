@@ -100,6 +100,8 @@
 </div>
         
         <button id="download-container" style="color: white;"></button>
+        <button id="copy-url" style="color: white;">获取对应尺寸的网络图片</button>
+        <div id="img-url"></div>
         
         <div id="result">
             <img id="preview" style="display: none;">
@@ -114,8 +116,10 @@
     const previewImg = document.getElementById('preview');
     const downloadContainer = document.getElementById('download-container');
     const colorPreview = document.getElementById('color-preview');
+    const imgUrl = document.getElementById('img-url');
 
     const colorCode = document.getElementById('color-code');
+    const copyBtn = document.getElementById('copy-url');
     
     // 添加输入变化监听器
     widthInput.addEventListener('input', debounce(generateImage, 300));
@@ -128,6 +132,14 @@
      // 点击颜色预览框时触发颜色选择
     colorPreview.addEventListener('click', function() {
         colorInput.click(); // 触发隐藏的颜色输入框
+    });
+
+
+  
+    copyBtn.addEventListener('click', function() {
+        const width = parseInt(widthInput.value);
+        const height = parseInt(heightInput.value);
+        window.open('https://picsum.photos/'+width+'/'+height, '_blank');
     });
 
     // 颜色变化时更新预览和代码
@@ -205,6 +217,40 @@
         downloadLink.className = 'download-link';
         downloadContainer.appendChild(downloadLink);
     }
+
+    function copyText(text) {
+        const feedback = document.getElementById('copy-feedback');
+        
+        function showFeedback() {
+            feedback.style.display = 'inline';
+            setTimeout(() => feedback.style.display = 'none', 2000);
+        }
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text)
+            .then(showFeedback)
+            .catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+        }
+
+        function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        document.body.appendChild(textarea);
+        textarea.select();
+        
+        try {
+            document.execCommand('copy');
+            showFeedback();
+        } catch (err) {
+            alert('复制失败，请手动选择文本后按Ctrl+C复制');
+        }
+        
+        document.body.removeChild(textarea);
+        }
     
     // 初始生成一张图片
     generateImage();
